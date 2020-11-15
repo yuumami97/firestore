@@ -1,0 +1,9 @@
+curl -i \
+-H "Accept: application/json" \
+-H "Content-Type: application/json" \
+-X PATCH --data '{"username": "yuumamiPatch", "email": "yuumami97@gmail.com"}' \
+http://localhost:5000/patchData
+
+echo
+ 
+
