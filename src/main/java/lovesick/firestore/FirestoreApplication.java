@@ -7,6 +7,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,10 +24,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-
 @SpringBootApplication
 @RestController
 public class FirestoreApplication {
+
+  private String idToken;
+
+  @Autowired
+  private Environment env;
 
 	public static void main(String[] args) {
 		SpringApplication.run(FirestoreApplication.class, args);
@@ -33,6 +39,7 @@ public class FirestoreApplication {
 
   @GetMapping("/hello")
   public String hello(@RequestParam(value = "name", defaultValue = "there") String name) {
+    System.out.println(env.getProperty("API_KEY"));
     return String.format("Hello %s", name);
   }
 
@@ -47,6 +54,49 @@ public class FirestoreApplication {
     return ResponseEntity.ok(HttpStatus.OK);
   }
   
+
+  @PostMapping(value = "/signUp", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public ResponseData signUp(@RequestBody SignData sd) {
+    System.out.println(String.format("signUp: %s/%s %tT", sd.email, sd.password, System.currentTimeMillis()));
+   
+    String endPoint = "https://identitytoolkit.googleapis.com";
+    WebClient wc = WebClient.builder()
+                    .baseUrl(endPoint)
+                    .defaultCookie("cookieKey", "cookieValue")
+                    .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE) 
+                    .defaultUriVariables(Collections.singletonMap("url", endPoint))
+                    .build();
+
+    LinkedMultiValueMap map = new LinkedMultiValueMap();
+    map.add("email", sd.email);
+    map.add("password", sd.password);
+     
+    BodyInserter<MultiValueMap, ClientHttpRequest> inserter = BodyInserters.fromMultipartData(map);
+
+    idToken = env.getProperty("API_KEY");
+    System.out.println(idToken);
+
+    ResponseData res = new ResponseData();
+    res.statusCode = "2000";
+    res.message = "";
+    res.timeStamp = String.format("%tT", System.currentTimeMillis());
+    return res;
+  }
+  
+  @PostMapping(value = "/signIn", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public ResponseData signIn(@RequestBody SignData sd) {
+    System.out.println(String.format("signIn: %s/%s %tT", sd.email, sd.password, System.currentTimeMillis()));
+    
+    System.out.println(idToken);
+
+    ResponseData res = new ResponseData();
+    res.statusCode = "2000";
+    res.message = "";
+    res.timeStamp = String.format("%tT", System.currentTimeMillis());
+    return res;
+  }
 
   @PostMapping(value = "/postData", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
