@@ -14,11 +14,13 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 
 @SpringBootApplication
@@ -40,28 +42,43 @@ public class FirestoreApplication {
   }
 
   @PostMapping("/login")
-  ResponseEntity login (@RequestBody LoginData loginData) {
+  public ResponseEntity login (@RequestBody LoginData loginData) {
     System.out.println(String.format("loginData: %s/%s %tT", loginData.username, loginData.password, System.currentTimeMillis()));
     return ResponseEntity.ok(HttpStatus.OK);
   }
   
 
-  @PostMapping("/postData")
-  public ResponseEntity postData(@RequestBody RequestData req) {
+  @PostMapping(value = "/postData", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public ResponseData postData(@RequestBody RequestData req) {
     System.out.println(String.format("postData: %s/%s %tT", req.username, req.email, System.currentTimeMillis()));
-    return ResponseEntity.ok(HttpStatus.OK);
+    ResponseData res = new ResponseData();
+    res.statusCode = "2000";
+    res.message = "";
+    res.timeStamp = String.format("%tT", System.currentTimeMillis());
+    return res;
   }
   
-  @PatchMapping("/patchData")
-  public ResponseEntity patchData(@RequestBody RequestData req) {
+  @PatchMapping(value = "/patchData", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public ResponseData patchData(@RequestBody RequestData req) {
     System.out.println(String.format("patchData: %s/%s %tT", req.username, req.email, System.currentTimeMillis()));
-    return ResponseEntity.ok(HttpStatus.OK);
+    ResponseData res = new ResponseData();
+    res.statusCode = "2000";
+    res.message = "";
+    res.timeStamp = String.format("%tT", System.currentTimeMillis());
+    return res;
   }
 
-  @DeleteMapping("/deleteData")
-  public ResponseEntity deleteData(@RequestBody RequestData req) {
+  @DeleteMapping(value = "/deleteData", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public ResponseData deleteData(@RequestBody RequestData req) {
     System.out.println(String.format("deleteData: %s/%s %tT", req.username, req.email, System.currentTimeMillis()));
-    return ResponseEntity.ok(HttpStatus.OK);
+    ResponseData res = new ResponseData();
+    res.statusCode = "2000";
+    res.message = "";
+    res.timeStamp = String.format("%tT", System.currentTimeMillis());
+    return res;
   }
 
 
