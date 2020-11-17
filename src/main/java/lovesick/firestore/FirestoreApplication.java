@@ -19,7 +19,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -52,7 +55,21 @@ public class FirestoreApplication {
     System.out.println(String.format("loginData: %s/%s %tT", loginData.username, loginData.password, System.currentTimeMillis()));
     return ResponseEntity.ok(HttpStatus.OK);
   }
-  
+
+  /* Use this method for checking post data */
+  @PostMapping("/testData")
+  public String testData(RequestEntity<String> request) {
+    System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++");
+    System.out.println("request url: " + request.getUrl());
+    HttpHeaders headers = request.getHeaders();
+    System.out.println("request headers : " + headers);
+    HttpMethod method = request.getMethod();
+    System.out.println("request method : " + method);
+    System.out.println("request body : " + request.getBody());
+    System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++");
+    String body = request.getBody();
+    return "body => " + body;
+  }
 
   @PostMapping(value = "/signUp", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
@@ -62,9 +79,8 @@ public class FirestoreApplication {
     System.out.println(env.getProperty("API_KEY")); 
     Spring5WebClient s5wc = new Spring5WebClient(env.getProperty("API_KEY"));
     String result = s5wc.signUp(sd);
-
     System.out.println(result);
-
+    
     ResponseData res = new ResponseData();
     res.statusCode = "2000";
     res.message = "";
@@ -77,7 +93,10 @@ public class FirestoreApplication {
   public ResponseData signIn(@RequestBody SignData sd) {
     System.out.println(String.format("signIn: %s/%s %tT", sd.email, sd.password, System.currentTimeMillis()));
     
-    System.out.println(idToken);
+    Spring5WebClient s5wc = new Spring5WebClient(env.getProperty("API_KEY"));
+    String result = s5wc.signIn(sd);
+    System.out.println(result);
+    //System.out.println(idToken);
 
     ResponseData res = new ResponseData();
     res.statusCode = "2000";
@@ -88,8 +107,8 @@ public class FirestoreApplication {
 
   @PostMapping(value = "/postData", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  public ResponseData postData(@RequestBody RequestData req) {
-    System.out.println(String.format("postData: %s/%s %tT", req.username, req.email, System.currentTimeMillis()));
+  public ResponseData postData(@RequestBody SignData req) {
+    System.out.println(String.format("postData: %s/%s %tT", req.email, req.password, System.currentTimeMillis()));
     ResponseData res = new ResponseData();
     res.statusCode = "2000";
     res.message = "";
