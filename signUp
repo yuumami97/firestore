@@ -1,7 +1,7 @@
 curl -i \
 -H "Accept: application/json" \
 -H "Content-Type: application/json" \
--X POST --data '{"email": "yuumami97@gmail.com", "password": "12345"}' \
+-X POST --data '{ "email": "yuumami97@gmail.com", "password": "12345", "returnSecureToken":true }' \
 http://localhost:5000/signUp
 
 echo

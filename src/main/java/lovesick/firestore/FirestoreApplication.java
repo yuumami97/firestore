@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -59,23 +58,12 @@ public class FirestoreApplication {
   @ResponseBody
   public ResponseData signUp(@RequestBody SignData sd) {
     System.out.println(String.format("signUp: %s/%s %tT", sd.email, sd.password, System.currentTimeMillis()));
-   
-    String endPoint = "https://identitytoolkit.googleapis.com";
-    WebClient wc = WebClient.builder()
-                    .baseUrl(endPoint)
-                    .defaultCookie("cookieKey", "cookieValue")
-                    .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE) 
-                    .defaultUriVariables(Collections.singletonMap("url", endPoint))
-                    .build();
 
-    LinkedMultiValueMap map = new LinkedMultiValueMap();
-    map.add("email", sd.email);
-    map.add("password", sd.password);
-     
-    BodyInserter<MultiValueMap, ClientHttpRequest> inserter = BodyInserters.fromMultipartData(map);
+    System.out.println(env.getProperty("API_KEY")); 
+    Spring5WebClient s5wc = new Spring5WebClient(env.getProperty("API_KEY"));
+    String result = s5wc.signUp(sd);
 
-    idToken = env.getProperty("API_KEY");
-    System.out.println(idToken);
+    System.out.println(result);
 
     ResponseData res = new ResponseData();
     res.statusCode = "2000";
