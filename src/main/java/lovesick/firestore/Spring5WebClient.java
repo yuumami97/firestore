@@ -24,7 +24,7 @@ import reactor.core.publisher.Mono;
 public class Spring5WebClient {
 
   private String API_KEY;
-  private String idToken;
+  private Token token;
 
   ExchangeFilterFunction printlnFilter = new ExchangeFilterFunction() {
     @Override
@@ -38,6 +38,11 @@ public class Spring5WebClient {
 
   public Spring5WebClient(String apiKey) {
     API_KEY = apiKey;
+  }
+
+  public Spring5WebClient(String apiKey, Token tokenIn) {
+    API_KEY = apiKey;
+    token = tokenIn;
   }
 
   public String signUp(SignData sd) {
@@ -76,14 +81,17 @@ public class Spring5WebClient {
     return res;
   }
 
-  public String signIn(SignData sd) {
+  public Token signIn(SignData sd) {
+
     String endPoint = "https://identitytoolkit.googleapis.com";
     WebClient wc = WebClient.builder()
                     .baseUrl(endPoint)
                     .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .build();
-    StringBuilder sb = new StringBuilder();
-    String res = wc.method(HttpMethod.POST).uri("/v1/accounts:signInWithPassword?key=" + API_KEY)
+    /*
+    
+       StringBuilder sb = new StringBuilder();
+    Token resToken = wc.method(HttpMethod.POST).uri("/v1/accounts:signInWithPassword?key=" + API_KEY)
                   .body(Mono.just(sd), SignData.class)
                   .exchange()
                   .doOnSuccess(clientResponse -> System.out.println("clientResponse.headers() = " + clientResponse.headers()))
@@ -91,9 +99,20 @@ public class Spring5WebClient {
                   .doOnSuccess(clientResponse -> sb.append(clientResponse.statusCode())) 
                   //.doOnSuccess(clientResponse -> System.out.println("clientResponse.statusCode() = " + clientResponse.statusCode()))
                   .flatMap(clientResponse -> clientResponse.bodyToMono(String.class))
+                  //.flatMap(clientResponse -> clientResponse.bodyToMono(Token.class))
                   .block();
     String status = sb.toString(); 
     System.out.println("clientResponse.statusCode() = " + status); 
+    
+    */
+
+    token = wc.method(HttpMethod.POST).uri("/v1/accounts:signInWithPassword?key=" + API_KEY)
+                  .body(Mono.just(sd), SignData.class)
+                  .retrieve()
+                  .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(new Http4xxException("4xx")))
+                  .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(new Http5xxException("5xx")))
+                  .bodyToMono(Token.class)
+                  .block();
 
 // TODO: handle error
 /*
@@ -112,12 +131,94 @@ public class Spring5WebClient {
     }
 */
 
-    return res;
+    return token;
   }
 
-  public String get() {return "";}
-  public String post() {return "";}
-  public String patch() {return "";}
-  public String delete() {return "";}
+  public Pill get(String docId) {
+    String endPoint = "https://firestore.googleapis.com";
+    WebClient wc = WebClient.builder()
+                    .baseUrl(endPoint)
+                    .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .defaultHeaders(httpHeaders -> httpHeaders.setBearerAuth(token.idToken))
+                    .build();
+
+    Pill pill = wc.method(HttpMethod.GET).uri("/v1/projects/lovesick-firestore/databases/(default)/documents/pills/" + docId + "?key=" + API_KEY)
+                  .retrieve()
+                  .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(new Http4xxException("4xx")))
+                  .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(new Http5xxException("5xx")))
+                  .bodyToMono(Pill.class)
+                  .block();
+    return pill;
+  }
+
+  public Pill post(Pill pill) {
+/*
+    String endPoint = "http://localhost:5000";
+    String res = WebClient.builder()
+                  .baseUrl(endPoint)
+                  .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                  .defaultHeaders(httpHeaders -> httpHeaders.setBearerAuth(token.idToken))
+                  .build()
+                  .method(HttpMethod.POST).uri("/testData?key=" + API_KEY)
+                  .body(Mono.just(pill), Pill.class)
+                  .retrieve()
+                  .bodyToMono(String.class)
+                  .block();
+    Pill resPill = new Pill();
+*/    
+    
+    String endPoint = "https://firestore.googleapis.com";
+    WebClient wc = WebClient.builder()
+                    .baseUrl(endPoint)
+                    .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .defaultHeaders(httpHeaders -> httpHeaders.setBearerAuth(token.idToken))
+                    .build();
+    Pill resPill = wc.method(HttpMethod.POST).uri("/v1/projects/lovesick-firestore/databases/(default)/documents/pills?key=" + API_KEY)
+                  .body(Mono.just(pill), Pill.class)
+                  .retrieve()
+                  .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(new Http4xxException("4xx")))
+                  .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(new Http5xxException("5xx")))
+                  .bodyToMono(Pill.class)
+                  .block();
+    
+    
+    return resPill;
+  }
+
+  public Pill patch(Pill pill) {
+    
+    String endPoint = "https://firestore.googleapis.com";
+    WebClient wc = WebClient.builder()
+                    .baseUrl(endPoint)
+                    .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .defaultHeaders(httpHeaders -> httpHeaders.setBearerAuth(token.idToken))
+                    .build();
+    Pill resPill = wc.method(HttpMethod.PATCH).uri("/v1/projects/lovesick-firestore/databases/(default)/documents/pills/kceEs0Ui1eUcWLP2BcVi?updateMask.fieldPaths=name&updateMask.fieldPaths=taste&key=" + API_KEY)
+                  .body(Mono.just(pill), Pill.class)
+                  .retrieve()
+                  .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(new Http4xxException("4xx")))
+                  .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(new Http5xxException("5xx")))
+                  .bodyToMono(Pill.class)
+                  .block();
+    
+    
+    return resPill;
+  }
+
+  public void delete(String docId) {
+    String endPoint = "https://firestore.googleapis.com";
+    WebClient wc = WebClient.builder()
+                    .baseUrl(endPoint)
+                    .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .defaultHeaders(httpHeaders -> httpHeaders.setBearerAuth(token.idToken))
+                    .build();
+
+    Pill pill = wc.method(HttpMethod.DELETE).uri("/v1/projects/lovesick-firestore/databases/(default)/documents/pills/" + docId + "?key=" + API_KEY)
+                  .retrieve()
+                  .onStatus(HttpStatus::is4xxClientError, clientResponse -> Mono.error(new Http4xxException("4xx")))
+                  .onStatus(HttpStatus::is5xxServerError, clientResponse -> Mono.error(new Http5xxException("5xx")))
+                  .bodyToMono(Pill.class)
+                  .block();
+  }
 
 }

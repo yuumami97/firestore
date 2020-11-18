@@ -1,9 +1,8 @@
 curl -i \
 -H "Accept: application/json" \
 -H "Content-Type: application/json" \
--X POST --data '{"username": "yuumami97", "email": "yuumami97@gmail.com"}' \
+-X POST --data '{"fields":{"taste":{"stringValue":"Salty"},"name":{"stringValue":"Gray"}}}' \
 http://localhost:5000/postData
 
 echo
- 
 

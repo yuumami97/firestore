@@ -1,9 +1,8 @@
 curl -i \
 -H "Accept: application/json" \
 -H "Content-Type: application/json" \
--X PATCH --data '{"username": "yuumamiPatch", "email": "yuumami97@gmail.com"}' \
+-X PATCH --data '{"fields":{"taste":{"stringValue":"Updaty"},"name":{"stringValue":"White"}}}' \
 http://localhost:5000/patchData
 
 echo
- 
 

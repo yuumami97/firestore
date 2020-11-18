@@ -1,8 +1,8 @@
 curl -i \
 -H "Accept: application/json" \
 -H "Content-Type: application/json" \
--X DELETE --data '{"username": "DELETE", "email": "DELETE@gmail.com"}' \
-http://localhost:5000/deleteData
+-X DELETE \
+http://localhost:5000/deleteData?docId=KA1Z2oX0ZrZQlu4hZqeL
 
 echo
  

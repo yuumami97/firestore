@@ -1,8 +1,7 @@
 curl -i \
 -H "Accept: application/json" \
 -H "Content-Type: application/json" \
--X POST --data '{"username": "yuumami97", "email": "yuumami97@gmail.com"}' \
-http://localhost:5000/postData
+http://localhost:5000/getData?docId=kfAzN9F4B1MPcJYoYpH7
 
 echo
  

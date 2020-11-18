@@ -30,7 +30,7 @@ import org.springframework.http.MediaType;
 @RestController
 public class FirestoreApplication {
 
-  private String idToken;
+  private Token token;
 
   @Autowired
   private Environment env;
@@ -94,10 +94,26 @@ public class FirestoreApplication {
     System.out.println(String.format("signIn: %s/%s %tT", sd.email, sd.password, System.currentTimeMillis()));
     
     Spring5WebClient s5wc = new Spring5WebClient(env.getProperty("API_KEY"));
-    String result = s5wc.signIn(sd);
-    System.out.println(result);
-    //System.out.println(idToken);
+    Token resToken = s5wc.signIn(sd);
+    System.out.println(resToken);
+    token = resToken;
 
+    ResponseData res = new ResponseData();
+    res.statusCode = "2000";
+    res.message = "";
+    res.timeStamp = String.format("%tT", System.currentTimeMillis());
+    return res;
+  }
+
+  @GetMapping(value = "/getData", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseBody
+  public ResponseData getData(@RequestParam(value = "docId") String docId) {
+    System.out.println(String.format("postData: docId => %s | %tT", docId, System.currentTimeMillis()));
+    
+    Spring5WebClient s5wc = new Spring5WebClient(env.getProperty("API_KEY"), token);
+    Pill pill = s5wc.get(docId);
+    System.out.println(pill);
+    
     ResponseData res = new ResponseData();
     res.statusCode = "2000";
     res.message = "";
@@ -107,8 +123,13 @@ public class FirestoreApplication {
 
   @PostMapping(value = "/postData", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  public ResponseData postData(@RequestBody SignData req) {
-    System.out.println(String.format("postData: %s/%s %tT", req.email, req.password, System.currentTimeMillis()));
+  public ResponseData postData(@RequestBody Pill pill) {
+    System.out.println(String.format("postData: %s/%s %tT", pill.fields.name.stringValue, pill.fields.taste.stringValue, System.currentTimeMillis()));
+    
+    Spring5WebClient s5wc = new Spring5WebClient(env.getProperty("API_KEY"), token);
+    Pill resPill = s5wc.post(pill);
+    System.out.println(resPill);
+
     ResponseData res = new ResponseData();
     res.statusCode = "2000";
     res.message = "";
@@ -118,8 +139,13 @@ public class FirestoreApplication {
   
   @PatchMapping(value = "/patchData", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  public ResponseData patchData(@RequestBody RequestData req) {
-    System.out.println(String.format("patchData: %s/%s %tT", req.username, req.email, System.currentTimeMillis()));
+  public ResponseData patchData(@RequestBody Pill pill) {
+    System.out.println(String.format("patchData: %s/%s %tT", pill.fields.name.stringValue, pill.fields.taste.stringValue, System.currentTimeMillis()));
+    
+    Spring5WebClient s5wc = new Spring5WebClient(env.getProperty("API_KEY"), token);
+    Pill resPill = s5wc.patch(pill);
+    System.out.println(resPill);
+    
     ResponseData res = new ResponseData();
     res.statusCode = "2000";
     res.message = "";
@@ -129,8 +155,12 @@ public class FirestoreApplication {
 
   @DeleteMapping(value = "/deleteData", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseBody
-  public ResponseData deleteData(@RequestBody RequestData req) {
-    System.out.println(String.format("deleteData: %s/%s %tT", req.username, req.email, System.currentTimeMillis()));
+  public ResponseData deleteData(@RequestParam(value = "docId") String docId) {
+    System.out.println(String.format("postData: docId => %s | %tT", docId, System.currentTimeMillis()));
+    
+    Spring5WebClient s5wc = new Spring5WebClient(env.getProperty("API_KEY"), token);
+    s5wc.delete(docId);
+    
     ResponseData res = new ResponseData();
     res.statusCode = "2000";
     res.message = "";
