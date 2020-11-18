@@ -24,6 +24,7 @@ import reactor.core.publisher.Mono;
 public class Spring5WebClient {
 
   private String API_KEY;
+  private String idToken;
 
   ExchangeFilterFunction printlnFilter = new ExchangeFilterFunction() {
     @Override
@@ -75,7 +76,7 @@ public class Spring5WebClient {
     return res;
   }
 
- rpublic String signIn(SignData sd) {
+  public String signIn(SignData sd) {
     String endPoint = "https://identitytoolkit.googleapis.com";
     WebClient wc = WebClient.builder()
                     .baseUrl(endPoint)
@@ -94,6 +95,7 @@ public class Spring5WebClient {
     String status = sb.toString(); 
     System.out.println("clientResponse.statusCode() = " + status); 
 
+// TODO: handle error
 /*
     {  
       "error": {    
